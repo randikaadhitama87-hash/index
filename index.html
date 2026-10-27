@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Pemilu 2029</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+    }
+
+    #countdown {
+      font-size: 60px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    #tanggal {
+      font-size: 20px;
+      opacity: 0.8;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #333;
+      color: white;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    button.active {
+      background: white;
+      color: #111;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div>
+
+    <h1>Countdown Menuju Pemilu 2029</h1>
+
+    <div id="countdown">
+      Loading...
+    </div>
+
+    <div id="tanggal"></div>
+
+    <div class="buttons">
+
+      <button id="bulanBtn" onclick="ubahMode('bulan')">
+        Bulan
+      </button>
+
+      <button id="mingguBtn" onclick="ubahMode('minggu')">
+        Minggu
+      </button>
+
+      <button id="hariBtn" onclick="ubahMode('hari')">
+        Hari
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    /*
+      GANTI TANGGAL INI setelah tanggal resmi
+      Pemilu 2029 ditetapkan KPU.
+    */
+
+    const tanggalPemilu = "2029-02-14T07:00:00";
+
+    // Mode awal
+    let mode = "minggu";
+
+
+    function updateCountdown() {
+
+      const sekarang = new Date();
+      const target = new Date(tanggalPemilu);
+
+      const selisih = target - sekarang;
+
+
+      if (selisih <= 0) {
+
+        document.getElementById("countdown").innerHTML =
+          "00 Hari 00:00:00";
+
+        document.getElementById("tanggal").innerHTML =
+          "Pemilu 2029 telah dimulai.";
+
+        return;
+      }
+
+
+      // =========================
+      // TOTAL HARI
+      // =========================
+
+      const totalHari = Math.floor(
+        selisih / (1000 * 60 * 60 * 24)
+      );
+
+
+      // =========================
+      // JAM, MENIT, DETIK
+      // =========================
+
+      const jam = Math.floor(
+        (selisih / (1000 * 60 * 60)) % 24
+      );
+
+      const menit = Math.floor(
+        (selisih / (1000 * 60)) % 60
+      );
+
+      const detik = Math.floor(
+        (selisih / 1000) % 60
+      );
+
+
+      // =========================
+      // MODE BULAN
+      // =========================
+
+      if (mode === "bulan") {
+
+        let bulan =
+          (target.getFullYear() - sekarang.getFullYear()) * 12 +
+          (target.getMonth() - sekarang.getMonth());
+
+
+        // Membuat tanggal sementara
+        let tanggalSementara = new Date(sekarang);
+
+        tanggalSementara.setMonth(
+          tanggalSementara.getMonth() + bulan
+        );
+
+
+        // Jika tanggal sementara melewati target,
+        // kurangi satu bulan
+        if (tanggalSementara > target) {
+          bulan--;
+          tanggalSementara = new Date(sekarang);
+
+          tanggalSementara.setMonth(
+            tanggalSementara.getMonth() + bulan
+          );
+        }
+
+
+        // Hitung sisa waktu setelah bulan penuh
+        const sisaWaktu = target - tanggalSementara;
+
+
+        const sisaHari = Math.floor(
+          sisaWaktu / (1000 * 60 * 60 * 24)
+        );
+
+        const sisaJam = Math.floor(
+          (sisaWaktu / (1000 * 60 * 60)) % 24
+        );
+
+        const sisaMenit = Math.floor(
+          (sisaWaktu / (1000 * 60)) % 60
+        );
+
+        const sisaDetik = Math.floor(
+          (sisaWaktu / 1000) % 60
+        );
+
+
+        document.getElementById("countdown").innerHTML =
+          `${bulan} Bulan ` +
+          `${sisaHari} Hari ` +
+          `${String(sisaJam).padStart(2, "0")}:` +
+          `${String(sisaMenit).padStart(2, "0")}:` +
+          `${String(sisaDetik).padStart(2, "0")}`;
+
+
+      // =========================
+      // MODE MINGGU
+      // =========================
+
+      } else if (mode === "minggu") {
+
+        const minggu = Math.floor(totalHari / 7);
+        const hari = totalHari % 7;
+
+        document.getElementById("countdown").innerHTML =
+          `${minggu} Minggu ` +
+          `${String(hari).padStart(2, "0")} Hari ` +
+          `${String(jam).padStart(2, "0")}:` +
+          `${String(menit).padStart(2, "0")}:` +
+          `${String(detik).padStart(2, "0")}`;
+
+
+      // =========================
+      // MODE HARI
+      // =========================
+
+      } else {
+
+        document.getElementById("countdown").innerHTML =
+          `${totalHari} Hari ` +
+          `${String(jam).padStart(2, "0")}:` +
+          `${String(menit).padStart(2, "0")}:` +
+          `${String(detik).padStart(2, "0")}`;
+      }
+
+
+      document.getElementById("tanggal").innerHTML =
+        "¯\\_(ツ)_/¯";
+    }
+
+
+    // =========================
+    // GANTI MODE
+    // =========================
+
+    function ubahMode(modeBaru) {
+
+      mode = modeBaru;
+
+
+      document.getElementById("bulanBtn")
+        .classList.toggle("active", mode === "bulan");
+
+      document.getElementById("mingguBtn")
+        .classList.toggle("active", mode === "minggu");
+
+      document.getElementById("hariBtn")
+        .classList.toggle("active", mode === "hari");
+
+
+      updateCountdown();
+    }
+
+
+    // Mode awal
+    ubahMode("minggu");
+
+
+    // Update setiap 1 detik
+    setInterval(updateCountdown, 1000);
+
+  </script>
+
+</body>
+</html>
